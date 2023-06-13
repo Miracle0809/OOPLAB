@@ -1,66 +1,123 @@
 package AimsProject.hust.soict.dsai.aims.store;
-import AimsProject.hust.soict.dsai.aims.disc.DigitalVideoDisc;
+import AimsProject.hust.soict.dsai.aims.cart.Cart;
+import AimsProject.hust.soict.dsai.aims.helper.Helper;
+import AimsProject.hust.soict.dsai.aims.media.Book;
+import AimsProject.hust.soict.dsai.aims.media.CompactDisc;
+import AimsProject.hust.soict.dsai.aims.media.DigitalVideoDisc;
+import AimsProject.hust.soict.dsai.aims.media.Media;
 
-public class Store {
-	private DigitalVideoDisc[] itemsInStore = new DigitalVideoDisc[1000];
-	public void addDVD(DigitalVideoDisc dvd) {
-		for (int i = 0;i< itemsInStore.length;i++) {
-			if (itemsInStore[i] == null) {
-				itemsInStore[i] = dvd;
-				System.out.println("Added disc!");
-				break;
-			}
-		}
-	}
-	public void addDVD(DigitalVideoDisc...dvds){
-		int k = 0;
-		for (int i = 0;i< itemsInStore.length;i++) {
-			if (itemsInStore[i] == null){
-				itemsInStore[i] = dvds[k];
-				System.out.println("Added disc!");
-		
-				if (k == (dvds.length-1)){
-					
-					break;
-				}
-				k++;
-				}
-			}
-		}
+import java.util.ArrayList;
 
-	public void removeDVD(DigitalVideoDisc disc) {
-		int numOfDvd = 0;
-		boolean check = true;
-		
-		DigitalVideoDisc copy[] = new DigitalVideoDisc[100];
-			
-		for (int i = 0;i<itemsInStore.length;i++) {
-			if (itemsInStore[i] != null) {
-				numOfDvd+=1;
-			}
-		}
-		if (numOfDvd == 0) {
-			System.out.println("There is no disc!");
-			return;
-		}
-		
-		for (int i = 0; i<itemsInStore.length;i++) {
-			if (itemsInStore[i] == disc) {
-				check = false;
-				itemsInStore[i] = null;
-				numOfDvd -=1;
-				for (int j = 0,k=0;j<copy.length;j++) {
-					if (itemsInStore[j] != null) {
-						copy[k++] = itemsInStore[j];
-					}
-				}
-				itemsInStore = copy;
-				System.out.println("The disc is removed!");
-				break;
-				}
-			}
-		if (check == true) {
-			System.out.println("Cannot found this disc!");
-		}
-	}
+public class Store extends Cart {
+    private ArrayList<Media> itemsInStore = new ArrayList<Media>();
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (itemsInStore.isEmpty()) {
+            sb.append("The store is empty!");
+        } else {
+            for (int i = 0; i < itemsInStore.size(); i++) {
+                Media media = itemsInStore.get(i);
+                sb.append((i + 1) + ". ID:" + media.getId() + "-" + media.getClass().getSimpleName() + ": "
+                        + media.getTitle() + "-"
+                        + media.getCategory() + "-" + media.getCost() + "$\n");
+            }
+        }
+        return sb.toString();
+    }
+
+    public void displayStore() {
+        System.out.println("*************************STORE***************************\nList of items:");
+        System.out.println(this.toString());
+        System.out.println("********************************************************");
+    }
+
+    public void addMedia(Media media) {
+        if (itemsInStore.size() == 20) {
+            System.out.println("The Store is full!!");
+        } else {
+            itemsInStore.add(media);
+            System.out.println("The " + media.getClass().getName() + " " + media.getTitle() + " have been added!");
+        }
+    }
+
+    public void addDVD() {
+        System.out.println("\n--------------------");
+        System.out.println("ADD DVD");
+        System.out.println("--------------------");
+        String title = Helper.scanTitle();
+        String category = Helper.scanCategory();
+        String director = Helper.scanDirector();
+        int length = Helper.scanLength();
+        float cost = Helper.scanCost();
+        DigitalVideoDisc disc = new DigitalVideoDisc(title, category, director, length, cost);
+        addMedia(disc);
+        System.out.println("--------------------");
+
+    }
+
+    public void addBook() {
+        System.out.println("\n--------------------");
+        System.out.println("ADD BOOK");
+        System.out.println("--------------------");
+        String title = Helper.scanTitle(), category = Helper.scanCategory();
+        float cost = Helper.scanCost();
+        Book book = new Book(title, category, cost);
+        addMedia(book);
+        System.out.println("--------------------");
+    }
+
+    public void addCD() {
+        System.out.println("\n--------------------");
+        System.out.println("ADD CD");
+        System.out.println("--------------------");
+        String title = Helper.scanTitle(), category = Helper.scanCategory(), director = Helper.scanDirector(),
+                artist = Helper.scanArtist();
+        int length = Helper.scanLength();
+        float cost = Helper.scanCost();
+        CompactDisc cd = new CompactDisc(title, category, director, length, cost, artist);
+        addMedia(cd);
+        System.out.println("--------------------");
+
+    }
+
+    public void removeMedia(Media media) {
+        if (itemsInStore.contains(media)) {
+            itemsInStore.remove(media);
+            System.out.println("The " + media.getClass().getName() + " " + media.getTitle() + " have been removed!");
+        } else {
+            System.out.println("The " + media.getClass().getName() + " " + media.getTitle() + " is not in the store!");
+        }
+    }
+
+    public void removeByID() {
+        displayStore();
+        int id = Helper.scanID();
+        removeMedia(findMediaById(id));
+    }
+
+    public void removeByTitle() {
+        displayStore();
+        String Title = Helper.scanTitle();
+        removeMedia(findMediaByTitle(Title));
+    }
+
+    public Media findMediaByTitle(String title) {
+        for (Media media : itemsInStore) {
+            if (media.getTitle().equals(title)) {
+                return media;
+            }
+        }
+        return null;
+    }
+
+    public Media findMediaById(int id) {
+        for (Media media : itemsInStore) {
+            if (media.getId() == id) {
+                return media;
+            }
+        }
+        return null;
+    }
 }
