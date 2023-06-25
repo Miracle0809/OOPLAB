@@ -1,5 +1,6 @@
 package AimsProject.hust.soict.dsai.aims.store;
 import AimsProject.hust.soict.dsai.aims.cart.Cart;
+import AimsProject.hust.soict.dsai.aims.exception.PlayerException;
 import AimsProject.hust.soict.dsai.aims.helper.Helper;
 import AimsProject.hust.soict.dsai.aims.media.Book;
 import AimsProject.hust.soict.dsai.aims.media.CompactDisc;
@@ -8,102 +9,44 @@ import AimsProject.hust.soict.dsai.aims.media.Media;
 
 import java.util.ArrayList;
 
-public class Store extends Cart {
-    private ArrayList<Media> itemsInStore = new ArrayList<Media>();
+public class Store {
+    private ArrayList<Media> itemsInStore =
+            new ArrayList<Media>();
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        if (itemsInStore.isEmpty()) {
-            sb.append("The store is empty!");
-        } else {
-            for (int i = 0; i < itemsInStore.size(); i++) {
-                Media media = itemsInStore.get(i);
-                sb.append((i + 1) + ". ID:" + media.getId() + "-" + media.getClass().getSimpleName() + ": "
-                        + media.getTitle() + "-"
-                        + media.getCategory() + "-" + media.getCost() + "$\n");
-            }
-        }
-        return sb.toString();
+    public ArrayList<Media> getItemsInStore() {
+        return itemsInStore;
     }
 
-    public void displayStore() {
-        System.out.println("*************************STORE***************************\nList of items:");
-        System.out.println(this.toString());
-        System.out.println("********************************************************");
+    public int addMedia(Media media) {
+        itemsInStore.add(media);
+        System.out.println("The media has been added");
+        return 1;
     }
 
-    public void addMedia(Media media) {
-        if (itemsInStore.size() == 20) {
-            System.out.println("The Store is full!!");
-        } else {
-            itemsInStore.add(media);
-            System.out.println("The " + media.getClass().getName() + " " + media.getTitle() + " have been added!");
-        }
-    }
-
-    public void addDVD() {
-        System.out.println("\n--------------------");
-        System.out.println("ADD DVD");
-        System.out.println("--------------------");
-        String title = Helper.scanTitle();
-        String category = Helper.scanCategory();
-        String director = Helper.scanDirector();
-        int length = Helper.scanLength();
-        float cost = Helper.scanCost();
-        DigitalVideoDisc disc = new DigitalVideoDisc(title, category, director, length, cost);
-        addMedia(disc);
-        System.out.println("--------------------");
-
-    }
-
-    public void addBook() {
-        System.out.println("\n--------------------");
-        System.out.println("ADD BOOK");
-        System.out.println("--------------------");
-        String title = Helper.scanTitle(), category = Helper.scanCategory();
-        float cost = Helper.scanCost();
-        Book book = new Book(title, category, cost);
-        addMedia(book);
-        System.out.println("--------------------");
-    }
-
-    public void addCD() {
-        System.out.println("\n--------------------");
-        System.out.println("ADD CD");
-        System.out.println("--------------------");
-        String title = Helper.scanTitle(), category = Helper.scanCategory(), director = Helper.scanDirector(),
-                artist = Helper.scanArtist();
-        int length = Helper.scanLength();
-        float cost = Helper.scanCost();
-        CompactDisc cd = new CompactDisc(title, category, director, length, cost, artist);
-        addMedia(cd);
-        System.out.println("--------------------");
-
-    }
-
-    public void removeMedia(Media media) {
+    public int removeMedia(Media media) {
         if (itemsInStore.contains(media)) {
             itemsInStore.remove(media);
-            System.out.println("The " + media.getClass().getName() + " " + media.getTitle() + " have been removed!");
-        } else {
-            System.out.println("The " + media.getClass().getName() + " " + media.getTitle() + " is not in the store!");
+            System.out.println("The media has been removed from the store");
+            return 1;
         }
+        System.out.println("The media is not in the store");
+        return 0;
     }
 
-    public void removeByID() {
-        displayStore();
-        int id = Helper.scanID();
-        removeMedia(findMediaById(id));
+    public void print() {
+        System.out.println("***********************STORE***********************");
+        System.out.println("Store Items:");
+        int index = 0;
+        for (Media d : itemsInStore) {
+            if (d != null) {
+                index++;
+                System.out.println(index + ". " + d);
+            }
+        }
+        System.out.println("***************************************************");
     }
 
-    public void removeByTitle() {
-        displayStore();
-        String Title = Helper.scanTitle();
-        removeMedia(findMediaByTitle(Title));
-    }
-
-    public Media findMediaByTitle(String title) {
+    public Media getMedia(String title) {
         for (Media media : itemsInStore) {
             if (media.getTitle().equals(title)) {
                 return media;
@@ -112,12 +55,16 @@ public class Store extends Cart {
         return null;
     }
 
-    public Media findMediaById(int id) {
-        for (Media media : itemsInStore) {
-            if (media.getId() == id) {
-                return media;
+    public void playMedia(String title) throws PlayerException {
+        for (Media d : itemsInStore) {
+            if (d.getTitle().equals(title)) {
+                try {
+                    ((Playable)d).play();
+                    break;
+                } catch (PlayerException e) {
+                    throw e;
+                }
             }
         }
-        return null;
     }
 }
